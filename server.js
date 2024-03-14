@@ -38,7 +38,7 @@ app.post('/signup', (req, res) => {
     })
 })
 
-//login per clienti ed admin
+//login per clienti, admin e agente immobiliare
 app.post('/login', (req, res) => {
     const sql = "SELECT 'Signup' AS type, Signup.Id_signup, Signup.Name, Signup.Email, Signup.Password " +
                 "FROM Signup WHERE Signup.Email = ? AND Signup.Password = ? " +
@@ -840,10 +840,12 @@ app.post('/Client/ricercaCase', (req, res) => {
 
 //ricerca case da parte del Client => con valori (paese, città, prezzo)
 app.post('/Client/ricercaTuttiCampi', (req, res) => {
-    const sql = "SELECT Casa.Id_casa, Casa.Nome, Propietario.Cognome AS Propietario, Casa.AgenteImm AS IdAgente, Agente.Cognome AS CognomeAgente, " + 
+    const sql = "SELECT Casa.Id_casa, Casa.Nome, Propietario.Cognome AS Propietario, " + 
+    "Casa.AgenteImm AS IdAgente, Agente.Cognome AS CognomeAgente, " + 
     "Casa.Paese, Casa.Citta, Casa.ImageURL, " +
-    "Casa.Via, Casa.Descrizione, CAST(Casa.Prezzo AS DECIMAL(9,1)) AS Prezzo FROM Casa INNER JOIN Propietario ON Casa.PropietarioIm = " + "Propietario.Id_propietario INNER JOIN Agente ON Casa.AgenteImm = Agente.Id_agente " + 
-    "WHERE Casa.Paese LIKE ? AND Casa.Citta LIKE ? AND (Casa.Prezzo <= ?) ;" ;
+    "Casa.Via, Casa.Descrizione, CAST(Casa.Prezzo AS DECIMAL(9,1)) AS Prezzo FROM Casa INNER JOIN Propietario ON Casa.PropietarioIm = " + 
+    "Propietario.Id_propietario INNER JOIN Agente ON Casa.AgenteImm = Agente.Id_agente " + 
+    "WHERE Casa.Paese LIKE ? AND Casa.Citta LIKE ? AND CAST(Casa.Prezzo AS DECIMAL(9,1)) <= ? ORDER BY Prezzo ASC ;" ;
     const values = ["%"+req.body.Paese+"%", "%"+req.body.Citta+"%", req.body.Prezzo];
 
     db.query(sql, values, (err, data) => { 
@@ -867,7 +869,7 @@ app.post('/Client/ricercaCasexPaesePrezzo', (req, res) => {
     const sql = "SELECT Casa.Id_casa, Casa.Nome, Propietario.Cognome AS Propietario, Casa.AgenteImm AS IdAgente, Agente.Cognome AS CognomeAgente, " + 
     "Casa.Paese, Casa.Citta, Casa.ImageURL, " +
     "Casa.Via, Casa.Descrizione, CAST(Casa.Prezzo AS DECIMAL(9,1)) AS Prezzo FROM Casa INNER JOIN Propietario ON Casa.PropietarioIm = " + "Propietario.Id_propietario INNER JOIN Agente ON Casa.AgenteImm = Agente.Id_agente " + 
-    "WHERE Casa.Paese LIKE ? AND (Casa.Prezzo <= ?) ;" ;
+    "WHERE Casa.Paese LIKE ? AND CAST(Casa.Prezzo AS DECIMAL(9,1)) <= ? ORDER BY Prezzo ASC ;" ;
     const values = ["%"+req.body.Paese+"%",req.body.Prezzo];
 
     db.query(sql, values, (err, data) => { 
@@ -892,7 +894,7 @@ app.post('/Client/ricercaCasexCittaPrezzo', (req, res) => {
     const sql = "SELECT Casa.Id_casa, Casa.Nome, Propietario.Cognome AS Propietario, Casa.AgenteImm AS IdAgente, Agente.Cognome AS CognomeAgente, " + 
     "Casa.Paese, Casa.Citta, Casa.ImageURL, " +
     "Casa.Via, Casa.Descrizione, CAST(Casa.Prezzo AS DECIMAL(9,1)) AS Prezzo FROM Casa INNER JOIN Propietario ON Casa.PropietarioIm = " + "Propietario.Id_propietario INNER JOIN Agente ON Casa.AgenteImm = Agente.Id_agente " + 
-    "WHERE Casa.Citta LIKE ? AND (Casa.Prezzo <= ?) ;" ;
+    "WHERE Casa.Citta LIKE ? AND CAST(Casa.Prezzo AS DECIMAL(9,1)) <= ? ORDER BY Prezzo ASC ;" ;
     const values = ["%"+req.body.Citta+"%",req.body.Prezzo];
 
     db.query(sql, values, (err, data) => { 
@@ -964,7 +966,7 @@ app.post('/Client/ricercaCasexPrezzo', (req, res) => {
     const sql = "SELECT Casa.Id_casa, Casa.Nome, Propietario.Cognome AS Propietario, Casa.AgenteImm AS IdAgente, Agente.Cognome AS CognomeAgente, " + 
     "Casa.Paese, Casa.Citta, Casa.ImageURL, " +
     "Casa.Via, Casa.Descrizione, CAST(Casa.Prezzo AS DECIMAL(9,1)) AS Prezzo FROM Casa INNER JOIN Propietario ON Casa.PropietarioIm = " + "Propietario.Id_propietario INNER JOIN Agente ON Casa.AgenteImm = Agente.Id_agente " + 
-    "WHERE (Casa.Prezzo <= ?) ;" ;
+    "WHERE CAST(Casa.Prezzo AS DECIMAL(9,1)) <= ? ORDER BY Prezzo ASC ;" ;
     const values = [req.body.Prezzo];
 
     console.log("Prezzo: " + req.body.Prezzo);
