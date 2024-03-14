@@ -1328,6 +1328,7 @@ app.post('/Client/Prefer', (req, res) => {
     })
 });
 
+
 //check se esiste già la casa nei preferiti del cliente
 app.post('/Client/CheckPreferite', (req, res) => {
     const sql = "SELECT * FROM Preferita WHERE Preferita.Id_user = ? AND Preferita.Id_casaPref = ? ;";
