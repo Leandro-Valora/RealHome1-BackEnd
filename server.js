@@ -407,11 +407,36 @@ app.post('/admin/crudAdmin/createCasa', (req, res) => {
             // Inserimento riuscito
             return res.status(200).json({ 
                 status: "Success",
-                addcasa: "casa created"
+                message: "casa created"
             });
         } else {
             // Nessun record inserito
             return res.status(404).json({ status: "Failed", message: "No records inserted" });
+        }
+    })
+});
+
+
+//check se esiste già una nuova Casa
+app.post('/admin/crudAdmin/checkDuplicateCasa', (req, res) => {
+    const sql = "SELECT Casa.Id_casa FROM Casa " +
+    "WHERE Casa.Nome = ? AND Casa.Paese = ? AND Casa.Citta = ? AND Casa.Via = ? AND Casa.Prezzo = ? ";
+    const values = [req.body.nome, req.body.paese, req.body.citta, req.body.via, req.body.prezzo];
+
+    db.query(sql, values, (err, data) => { 
+        if(err) {
+            console.log("Sono dentro ad error");
+            return res.status(500).json({ status: "Error", message: "Internal server error" });
+        }
+        if(data.length > 0) { // Controlla la lunghezza dell'array data
+            // Record trovati
+            return res.status(200).json({ 
+                status: "Failed",
+                message: "Record already exists"
+            });
+        } else {
+            console.log("Sono a success");
+            return res.status(200).json({ status: "Success", message: "No records found" });
         }
     })
 });
@@ -450,22 +475,34 @@ app.post('/admin/CasaDelete', (req, res) => {
         "DELETE FROM Preferita WHERE Preferita.Id_casaPref = ?"
     ];
 
+    let success = false;
+    let failed = false;
+
     deleteQueries.forEach((sql, index) => {
         db.query(sql, id_casa, (err, result) => {
             if(err) {
-                return res.json({ status: "Error", message: "Database error" });
+                failed = true;
+                if (!success) {
+                    return res.json({ status: "Error", message: "Database error" });
+                }
             }
-            if(index === deleteQueries.length - 1 && result.affectedRows > 0) {
-                return res.json({ 
-                    status: "Success", 
-                    message: "Casa deleted successfully"
-                });
-            } else if (index === deleteQueries.length - 1) {
-                return res.json({ status: "Failed", message: "No records found" });
+            if(result.affectedRows > 0) {
+                success = true;
+            }
+            if(index === deleteQueries.length - 1) {
+                if (success) {
+                    return res.json({ 
+                        status: "Success", 
+                        message: "Casa deleted successfully"
+                    });
+                } else if (failed) {
+                    return res.json({ status: "Failed", message: "No records found" });
+                }
             }
         });
     });
 });
+
 
 
 
@@ -635,22 +672,34 @@ app.post('/admin/AgenteDelete', (req, res) => {
         "DELETE FROM ScambioEmail WHERE ScambioEmail.Id_agente = ?"
     ];
 
+    let success = false;
+    let failed = false;
+
     deleteQueries.forEach((sql, index) => {
         db.query(sql, id_agente, (err, result) => {
             if(err) {
-                return res.json({ status: "Error", message: "Database error" });
+                failed = true;
+                if (!success) {
+                    return res.json({ status: "Error", message: "Database error" });
+                }
             }
-            if(index === deleteQueries.length - 1 && result.affectedRows > 0) {
-                return res.json({ 
-                    status: "Success", 
-                    message: "Agente deleted successfully"
-                });
-            } else if (index === deleteQueries.length - 1) {
-                return res.json({ status: "Failed", message: "No records found" });
+            if(result.affectedRows > 0) {
+                success = true;
+            }
+            if(index === deleteQueries.length - 1) {
+                if (success) {
+                    return res.json({ 
+                        status: "Success", 
+                        message: "Agente deleted successfully"
+                    });
+                } else if (failed) {
+                    return res.json({ status: "Failed", message: "No records found" });
+                }
             }
         });
     });
 });
+
 
 
 //dettaglli singolo agente Imm.
